@@ -1,7 +1,6 @@
 {
   "name": "pixelartapp",
   "version": "1.0.0",
-  "main": "index.ts",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -10,12 +9,19 @@
   },
   "dependencies": {
     "expo": "~54.0.25",
+    "expo-build-properties": "^1.0.9",
     "expo-status-bar": "~3.0.8",
+    "node": "^20.19.6",
     "react": "19.1.0",
-    "react-native": "0.81.5"
+    "react-native-paper": "^5.14.5",
+    "react-native-safe-area-context": "^5.6.2",
+    "react-native-svg": "^15.15.0",
+    "react-redux": "^9.2.0",
+    "redux": "^5.0.1"
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
+    "@types/react-redux": "^7.1.34",
     "typescript": "~5.9.2"
   },
   "private": true
