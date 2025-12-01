@@ -37,7 +37,7 @@ export function Canvas({ layers, scale, onPixelPress, onPan, pan, showGrid }: Ca
       if (!layer.isVisible) return;
       layer.pixels.forEach((row, y) => {
         row.forEach((pixelColor, x) => {
-          if (pixelColor !== 0) {
+          if (pixelColor) {
             rects.push(
               <Rect
                 key={`${layerIdx}-${y}-${x}`}

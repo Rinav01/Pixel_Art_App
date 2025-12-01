@@ -19,6 +19,9 @@ import {
 import { useSelector, useDispatch } from 'react-redux';
 import { EditorState } from '../state/types';
 import { LayerManager } from './LayerManager';
+import { styles } from './PixelArtEditor.styles';
+import { Canvas } from './Canvas';
+import { Timeline } from './Timeline';
 
 import { Toolbar } from './Toolbar';
 import { ColorPicker } from './ColorPicker';
@@ -77,6 +80,15 @@ function PixelArtEditor() {
   const handleSetCurrentLayer = (id: string) => {
     dispatch({ type: 'SET_CURRENT_LAYER', payload: id });
   };
+
+  const handleSetCurrentFrame = (index: number) => {
+    dispatch({ type: 'SET_CURRENT_FRAME', payload: index });
+  };
+
+  const handleAddFrame = () => {
+    dispatch({ type: 'ADD_FRAME' });
+  };
+
 
   return (
     <View style={styles.container}>
@@ -144,19 +156,16 @@ function PixelArtEditor() {
         actions={[
           {
             icon: 'numeric-1',
-            key: '1',
             label: '1px',
             onPress: () => {},
           },
           {
             icon: 'numeric-2',
-            key: '2',
             label: '2px',
             onPress: () => {},
           },
           {
             icon: 'numeric-3',
-            key: '3',
             label: '3px',
             onPress: () => {},
           },
@@ -169,5 +178,3 @@ function PixelArtEditor() {
 }
 
 export default PixelArtEditor;
-
-import { styles } from './PixelArtEditor.styles';

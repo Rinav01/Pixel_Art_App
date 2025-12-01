@@ -10,8 +10,8 @@ export const initialState: EditorState = {
           name: 'Layer 1',
           isVisible: true,
           pixels: Array(32)
-            .fill(0)
-            .map(() => Array(32).fill(0)),
+            .fill('')
+            .map(() => Array(32).fill('#000000')),
         },
       ],
     },
@@ -59,7 +59,7 @@ export function editorReducer(state: EditorState = initialState, action: any): E
         isVisible: true,
         pixels: Array(32)
           .fill(0)
-          .map(() => Array(32).fill(0)),
+          .map(() => Array(32).fill('#000000')),
       };
       const framesWithNewLayer = state.frames.map((frame, index) => {
         if (index === state.currentFrame) {
@@ -125,7 +125,7 @@ export function editorReducer(state: EditorState = initialState, action: any): E
             ...frame,
             layers: frame.layers.map(layer => {
               if (layer.id === state.currentLayer) {
-                const newPixels = layer.pixels.map(row => [...row]);
+                const newPixels: any[][] = layer.pixels.map(row => [...row]);
                 newPixels[y][x] = state.color;
                 return {
                   ...layer,

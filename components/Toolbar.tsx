@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { Surface, IconButton, Text } from 'react-native-paper';
-import { styles } from '../styles';
+import { styles } from './PixelArtEditor.styles';
+
 
 interface ToolbarProps {
   tool: string;

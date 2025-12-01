@@ -2,7 +2,8 @@ import React from 'react';
 import { ScrollView, View } from 'react-native';
 import { Portal, Modal, Text, Surface, IconButton, Button } from 'react-native-paper';
 import { Layer } from '../state/types';
-import { styles } from '../styles';
+import { styles } from './PixelArtEditor.styles';
+
 
 interface LayerManagerProps {
   visible: boolean;

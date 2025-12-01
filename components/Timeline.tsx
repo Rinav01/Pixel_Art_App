@@ -2,7 +2,8 @@ import React from 'react';
 import { View, ScrollView } from 'react-native';
 import { Surface, Chip, IconButton } from 'react-native-paper';
 import { Frame } from '../state/types';
-import { styles } from '../styles';
+import { styles } from './PixelArtEditor.styles';
+
 
 interface TimelineProps {
   frames: Frame[];
