@@ -2,7 +2,8 @@ export interface Layer {
   id: string;
   name: string;
   isVisible: boolean;
-  pixels: number[][];
+  // color string (hex) or null for transparent
+  pixels: (string | null)[][];
 }
 
 export interface Frame {
@@ -16,4 +17,15 @@ export interface EditorState {
   currentLayer: string;
   color: string;
   tool: string;
+  // simple undo/redo stacks (store serialized snapshots)
+  undoStack: EditorStateSnapshot[];
+  redoStack: EditorStateSnapshot[];
 }
+
+export type EditorStateSnapshot = {
+  frames: Frame[];
+  currentFrame: number;
+  currentLayer: string;
+  color: string;
+  tool: string;
+};

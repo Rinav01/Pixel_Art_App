@@ -1,0 +1,29 @@
+I have a React Native pixel-art editor built with react-native-paper, react-native-svg, and Redux.
+Keep all my existing logic exactly the same (Redux actions, reducer, drawing logic, canvas logic, layer logic, frame logic).
+Do NOT rewrite or replace any logic — only update UI layout and styling.
+
+I want you to output updated React Native components and styles that make the UI look similar to Pixilart (pixilart.com/draw), but not copied.
+
+Requirements:
+
+• Keep my Canvas logic and props exactly the same.
+• Keep my Redux store, reducer, and actions exactly as-is.
+• Only rewrite layout + styles of components (PixelArtEditor, LeftToolbar, RightSidebar, Timeline).
+• New layout structure:
+– Left vertical toolbar (~64px width) with tool icons + color preview
+– Center canvas area with checkerboard background and padded wrapper
+– Right sidebar (~280px) containing preview, layers panel, palette
+– Bottom timeline for frames
+– Top app bar with undo / redo / download
+– FAB group for brush sizes
+
+• Use react-native-paper + react-native-svg.
+• Dark theme UI similar to Pixilart: clean, modern, dark grey panels, highlights for active tools, rounded corners.
+
+Output:
+
+Updated component code
+
+Updated styles file
+
+Minimal changes, preserve all existing logic

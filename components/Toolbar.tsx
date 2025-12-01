@@ -1,68 +1,25 @@
 import React from 'react';
-import { View, ScrollView, TouchableOpacity } from 'react-native';
-import { Surface, IconButton, Text } from 'react-native-paper';
+import { View, TouchableOpacity } from 'react-native';
+import { IconButton } from 'react-native-paper';
+import { useDispatch, useSelector } from 'react-redux';
 import { styles } from './PixelArtEditor.styles';
+import type { EditorState } from '../state/types';
 
+export const Toolbar: React.FC = () => {
+  const dispatch = useDispatch();
+  const { tool, color } = useSelector((s: EditorState) => s);
 
-interface ToolbarProps {
-  tool: string;
-  color: string;
-  scale: number;
-  onToolChange: (tool: string) => void;
-  onColorChange: (color: string) => void;
-  onScaleChange: (scale: number) => void;
-}
+  const handleToolChange = (newTool: string) => dispatch({ type: 'SET_TOOL', payload: newTool });
 
-export function Toolbar({ tool, color, scale, onToolChange, onScaleChange }: ToolbarProps) {
   return (
-    <Surface style={styles.toolbar}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <View style={styles.toolRow}>
-          <IconButton
-            icon="pencil"
-            mode={tool === 'pen' ? 'contained' : 'outlined'}
-            selected={tool === 'pen'}
-            onPress={() => onToolChange('pen')}
-          />
-          <IconButton
-            icon="eraser"
-            mode={tool === 'eraser' ? 'contained' : 'outlined'}
-            selected={tool === 'eraser'}
-            onPress={() => onToolChange('eraser')}
-          />
-          <IconButton
-            icon="format-color-fill"
-            mode={tool === 'fill' ? 'contained' : 'outlined'}
-            selected={tool === 'fill'}
-            onPress={() => onToolChange('fill')}
-          />
-          <IconButton
-            icon="eyedropper"
-            mode={tool === 'eyedropper' ? 'contained' : 'outlined'}
-            selected={tool === 'eyedropper'}
-            onPress={() => onToolChange('eyedropper')}
-          />
-          <IconButton
-            icon="pan"
-            mode={tool === 'pan' ? 'contained' : 'outlined'}
-            selected={tool === 'pan'}
-            onPress={() => onToolChange('pan')}
-          />
-          
-          <View style={styles.divider} />
-          
-          <TouchableOpacity 
-            style={[styles.colorButton, { backgroundColor: color }]}
-            onPress={() => {}}
-          />
-          
-          <View style={styles.divider} />
-          
-          <IconButton icon="magnify-minus" onPress={() => onScaleChange(Math.max(4, scale - 2))} />
-          <Text style={styles.scaleText}>{scale}x</Text>
-          <IconButton icon="magnify-plus" onPress={() => onScaleChange(Math.min(32, scale + 2))} />
-        </View>
-      </ScrollView>
-    </Surface>
+    <View style={styles.toolRow}>
+      <IconButton icon="pencil" onPress={() => handleToolChange('pen')} mode={tool === 'pen' ? 'contained' : 'outlined'} />
+      <IconButton icon="eraser" onPress={() => handleToolChange('eraser')} mode={tool === 'eraser' ? 'contained' : 'outlined'} />
+      <IconButton icon="format-color-fill" onPress={() => handleToolChange('fill')} mode={tool === 'fill' ? 'contained' : 'outlined'} />
+      <IconButton icon="eyedropper" onPress={() => handleToolChange('eyedropper')} mode={tool === 'eyedropper' ? 'contained' : 'outlined'} />
+      <IconButton icon="pan" onPress={() => handleToolChange('pan')} mode={tool === 'pan' ? 'contained' : 'outlined'} />
+      <View style={styles.divider} />
+      <TouchableOpacity style={[styles.colorButton, { backgroundColor: color }]} onPress={() => { /* Open color picker modal or navigate */ }} />
+    </View>
   );
-}
+};

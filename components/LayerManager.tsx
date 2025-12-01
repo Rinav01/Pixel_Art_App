@@ -1,81 +1,37 @@
 import React from 'react';
 import { ScrollView, View } from 'react-native';
-import { Portal, Modal, Text, Surface, IconButton, Button } from 'react-native-paper';
-import { Layer } from '../state/types';
+import { Text, Surface, IconButton, Button } from 'react-native-paper';
+import { useSelector, useDispatch } from 'react-redux';
+import type { EditorState, Layer } from '../state/types';
 import { styles } from './PixelArtEditor.styles';
 
+export const LayerManager: React.FC = () => {
+  const dispatch = useDispatch();
+  const { layers, currentLayer } = useSelector((s: EditorState) => ({
+    layers: s.frames[s.currentFrame].layers,
+    currentLayer: s.currentLayer,
+  }));
 
-interface LayerManagerProps {
-  visible: boolean;
-  layers: Layer[];
-  currentLayer: string;
-  onDismiss: () => void;
-  onAddLayer: () => void;
-  onDeleteLayer: (id: string) => void;
-  onToggleLayerVisibility: (id: string) => void;
-  onSetCurrentLayer: (id: string) => void;
-}
+  const handleAddLayer = () => dispatch({ type: 'ADD_LAYER' });
+  const handleDeleteLayer = (id: string) => dispatch({ type: 'DELETE_LAYER', payload: id });
+  const handleToggleLayerVisibility = (id: string) => dispatch({ type: 'TOGGLE_LAYER_VISIBILITY', payload: id });
+  const handleSetCurrentLayer = (id: string) => dispatch({ type: 'SET_CURRENT_LAYER', payload: id });
 
-export function LayerManager({
-  visible,
-  layers,
-  currentLayer,
-  onDismiss,
-  onAddLayer,
-  onDeleteLayer,
-  onToggleLayerVisibility,
-  onSetCurrentLayer,
-}: LayerManagerProps) {
   return (
-    <Portal>
-      <Modal
-        visible={visible}
-        onDismiss={onDismiss}
-        contentContainerStyle={styles.modal}
-      >
-        <Text variant="headlineSmall" style={styles.modalTitle}>Layers</Text>
-        <ScrollView style={styles.layerList}>
-          {[...layers].reverse().map((layer) => {
-            return (
-              <Surface
-                key={layer.id}
-                style={[
-                  styles.layerItem,
-                  layer.id === currentLayer && styles.activeLayer
-                ]}
-              >
-                <View style={styles.layerRow}>
-                  <IconButton
-                    icon={layer.isVisible ? 'eye' : 'eye-off'}
-                    size={20}
-                    onPress={() => onToggleLayerVisibility(layer.id)}
-                  />
-                  <Text
-                    style={styles.layerName}
-                    onPress={() => onSetCurrentLayer(layer.id)}
-                  >
-                    {layer.name}
-                  </Text>
-                  {layers.length > 1 && (
-                    <IconButton
-                      icon="delete"
-                      size={20}
-                      iconColor="red"
-                      onPress={() => onDeleteLayer(layer.id)}
-                    />
-                  )}
-                </View>
-              </Surface>
-            );
-          })}
-        </ScrollView>
-        <Button mode="contained" onPress={onAddLayer} style={styles.addButton}>
-          Add Layer
-        </Button>
-        <Button onPress={onDismiss} style={styles.closeButton}>
-          Close
-        </Button>
-      </Modal>
-    </Portal>
+    <View>
+      <Text variant="headlineSmall" style={styles.sectionTitle}>Layers</Text>
+      <ScrollView style={styles.layerList}>
+        {[...layers].reverse().map(layer => (
+          <Surface key={layer.id} style={[styles.layerItem, layer.id === currentLayer && styles.activeLayer]}>
+            <View style={styles.layerRow}>
+              <IconButton icon={layer.isVisible ? 'eye' : 'eye-off'} size={20} onPress={() => handleToggleLayerVisibility(layer.id)} iconColor="#fff" />
+              <Text style={styles.layerName} onPress={() => handleSetCurrentLayer(layer.id)}>{layer.name}</Text>
+              {layers.length > 1 && <IconButton icon="delete" size={20} iconColor="red" onPress={() => handleDeleteLayer(layer.id)} />}
+            </View>
+          </Surface>
+        ))}
+      </ScrollView>
+      <Button mode="contained" onPress={handleAddLayer} style={{ marginTop: 8 }}>Add Layer</Button>
+    </View>
   );
-}
+};

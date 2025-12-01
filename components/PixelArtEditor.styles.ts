@@ -1,65 +1,98 @@
 import { StyleSheet } from 'react-native';
 
+const darkTheme = {
+  background: '#121212',
+  surface: '#1e1e1e',
+  primary: '#BB86FC',
+  secondary: '#03DAC6',
+  text: '#ffffff',
+  placeholder: '#a0a0a0',
+  border: '#333333',
+  active: '#3700B3',
+};
+
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: darkTheme.background,
+  },
+  mainArea: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  leftToolbar: {
+    width: 64,
+    backgroundColor: darkTheme.surface,
+    padding: 4,
+  },
+  rightSidebar: {
+    width: 280,
+    backgroundColor: darkTheme.surface,
+    padding: 8,
+  },
+  canvasContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: '#2c2c2c', // Checkerboard-like background
   },
   toolbar: {
-    elevation: 2,
-    paddingVertical: 8,
+    backgroundColor: 'transparent',
   },
   toolRow: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
-    paddingHorizontal: 8,
+    gap: 8,
   },
   divider: {
-    width: 1,
-    height: 32,
-    backgroundColor: '#e0e0e0',
-    marginHorizontal: 8,
+    width: '80%',
+    height: 1,
+    backgroundColor: darkTheme.border,
+    marginVertical: 8,
   },
   colorButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: '#333',
-    marginHorizontal: 8,
+    borderColor: darkTheme.text,
+    marginVertical: 8,
   },
   scaleText: {
-    marginHorizontal: 4,
+    color: darkTheme.text,
+    marginVertical: 4,
     fontSize: 14,
     fontWeight: 'bold',
   },
   colorPicker: {
-    elevation: 2,
-    paddingVertical: 12,
+    marginTop: 16,
   },
   paletteRow: {
     flexDirection: 'row',
-    paddingHorizontal: 8,
-    gap: 8,
+    flexWrap: 'wrap',
+    gap: 10,
+    justifyContent: 'center',
+    marginBottom: 12,
   },
   paletteColor: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
+    width: 32,
+    height: 32,
+    borderRadius: 6,
     borderWidth: 2,
-    borderColor: '#ccc',
+    borderColor: darkTheme.border,
   },
   selectedColor: {
-    borderColor: '#2196F3',
+    borderColor: darkTheme.primary,
     borderWidth: 3,
-  },
-  canvasContainer: {
-    flex: 1,
-    backgroundColor: '#f0f0f0',
+    transform: [{ scale: 1.1 }],
   },
   timeline: {
-    elevation: 4,
+    backgroundColor: darkTheme.surface,
+    borderTopWidth: 1,
+    borderTopColor: darkTheme.border,
     paddingVertical: 8,
+    height: 80,
   },
   timelineRow: {
     flexDirection: 'row',
@@ -69,48 +102,42 @@ export const styles = StyleSheet.create({
   },
   frameChip: {
     marginHorizontal: 4,
-  },
-  modal: {
-    backgroundColor: 'white',
-    padding: 20,
-    margin: 20,
-    borderRadius: 8,
-    maxHeight: '80%',
-  },
-  modalTitle: {
-    marginBottom: 16,
-    fontWeight: 'bold',
+    backgroundColor: darkTheme.background,
   },
   layerList: {
-    maxHeight: 400,
+    gap: 8,
+    marginBottom: 12,
   },
   layerItem: {
-    marginBottom: 8,
     borderRadius: 8,
-    elevation: 1,
+    backgroundColor: '#2a2a2a',
   },
   activeLayer: {
-    backgroundColor: '#e3f2fd',
+    backgroundColor: darkTheme.active,
     elevation: 3,
   },
   layerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 12,
   },
   layerName: {
     flex: 1,
     fontSize: 16,
-  },
-  addButton: {
-    marginTop: 16,
-  },
-  closeButton: {
-    marginTop: 8,
+    color: darkTheme.text,
   },
   fab: {
     position: 'absolute',
     right: 16,
-    bottom: 16,
+    bottom: 96,
   },
+  sectionTitle: {
+    color: darkTheme.text,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    fontSize: 16,
+  },
+  // Remove unused styles
+  // modal, modalTitle, addButton, closeButton
 });
