@@ -1,6 +1,7 @@
 import { EditorState } from './types';
 import { PIXEL_WIDTH, PIXEL_HEIGHT } from './constants';
 
+
 export const initialState: EditorState = {
   frames: [
     {
@@ -19,6 +20,7 @@ export const initialState: EditorState = {
   currentLayer: 'layer1',
   color: '#000000',
   tool: 'pen',
+  palette: [], // Add your default palette here, e.g. ['#000000', '#FFFFFF']
   undoStack: [],
   redoStack: [],
 };

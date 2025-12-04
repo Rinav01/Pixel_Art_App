@@ -28,6 +28,7 @@ function snapshot(state: EditorState): EditorStateSnapshot {
     currentLayer: state.currentLayer,
     color: state.color,
     tool: state.tool,
+    palette: [...state.palette],
   };
 }
 
@@ -71,6 +72,7 @@ export function editorReducer(state: EditorState = initialState, action: any): E
         currentLayer: last.currentLayer,
         color: last.color,
         tool: last.tool,
+        palette: [...last.palette],
         undoStack,
         redoStack,
       };
@@ -88,6 +90,7 @@ export function editorReducer(state: EditorState = initialState, action: any): E
         currentLayer: next.currentLayer,
         color: next.color,
         tool: next.tool,
+        palette: [...next.palette],
         undoStack,
         redoStack,
       };
@@ -126,6 +129,27 @@ export function editorReducer(state: EditorState = initialState, action: any): E
       return { ...state, color: action.payload };
     }
 
+    case 'ADD_COLOR_TO_PALETTE': {
+      if (state.palette.includes(action.payload)) {
+        return state;
+      }
+      return {
+        ...state,
+        palette: [...state.palette, action.payload],
+        undoStack: [...state.undoStack, snapshot(state)].slice(-50),
+        redoStack: [],
+      };
+    }
+
+    case 'REMOVE_COLOR_FROM_PALETTE': {
+      return {
+        ...state,
+        palette: state.palette.filter(c => c !== action.payload),
+        undoStack: [...state.undoStack, snapshot(state)].slice(-50),
+        redoStack: [],
+      };
+    }
+
     case 'ADD_LAYER': {
       const newLayer: Layer = {
         id: `layer${Date.now()}`,
@@ -146,7 +170,17 @@ export function editorReducer(state: EditorState = initialState, action: any): E
 
     case 'DELETE_LAYER': {
       const frames = cloneFrames(state.frames);
-      const layers = frames[state.currentFrame].layers.filter(l => l.id !== action.payload);
+      let layers = frames[state.currentFrame].layers.filter(l => l.id !== action.payload);
+      
+      // Re-number layers
+      let layerNumber = 1;
+      layers = layers.map(layer => {
+        if (layer.name.startsWith('Layer ')) {
+          return { ...layer, name: `Layer ${layerNumber++}` };
+        }
+        return layer;
+      });
+
       frames[state.currentFrame].layers = layers;
       const newCurrentLayer = layers.length > 0 ? layers[0].id : '';
       return {

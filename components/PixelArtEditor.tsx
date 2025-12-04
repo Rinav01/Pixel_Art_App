@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, useWindowDimensions } from 'react-native';
-import { Appbar, FAB, Provider, Surface, useTheme } from 'react-native-paper';
+import { Appbar, Provider, useTheme } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux';
 import type { EditorState } from '../state/types';
 import { Canvas } from './Canvas';
@@ -13,40 +13,50 @@ import { PIXEL_HEIGHT, PIXEL_WIDTH } from '../state/constants';
 const PixelArtEditor: React.FC = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const { frames, currentFrame, currentLayer, color, tool } = useSelector((s: EditorState) => s);
+  const frames = useSelector((s: EditorState) => s.frames);
+  const currentFrame = useSelector((s: EditorState) => s.currentFrame);
+  const currentLayer = useSelector((s: EditorState) => s.currentLayer);
+  const color = useSelector((s: EditorState) => s.color);
+  const tool = useSelector((s: EditorState) => s.tool);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
-  // Calculate the best scale and pan to fit the canvas on the screen
-  const canvasWidth = PIXEL_WIDTH;
-  const canvasHeight = PIXEL_HEIGHT;
-  
-  // Give some padding
-  const availableWidth = windowWidth - 384; // 64 for left, 280 for right, 40 for padding
-  const availableHeight = windowHeight - 160; // Account for header, timeline
-  
-  const scaleX = availableWidth / canvasWidth;
-  const scaleY = availableHeight / canvasHeight;
-  const initialScale = Math.floor(Math.min(scaleX, scaleY));
-  
-  const initialPanX = (windowWidth - (canvasWidth * initialScale)) / 2;
-  const initialPanY = (windowHeight - (canvasHeight * initialScale)) / 2;
-  
-  const [pan, setPan] = React.useState({ x: initialPanX, y: initialPanY });
-  const [scale, setScale] = React.useState(initialScale);
+  const [pan, setPan] = React.useState({ x: 0, y: 0 });
+  const [scale, setScale] = React.useState(1);
   const [showGrid, setShowGrid] = React.useState(true);
-  const [isFabOpen, setIsFabOpen] = React.useState(false);
+  
+  // Constants for layout
+  const LEFT_TOOLBAR_WIDTH = 64;
+  const RIGHT_SIDEBAR_WIDTH = 280;
+  const HEADER_HEIGHT = 56; // Approximate Appbar height
+  const TIMELINE_HEIGHT = 80;
+  
+  // Calculate available canvas area
+  const canvasWidth = Math.max(0, windowWidth - LEFT_TOOLBAR_WIDTH - RIGHT_SIDEBAR_WIDTH);
+  const canvasHeight = Math.max(0, windowHeight - HEADER_HEIGHT - TIMELINE_HEIGHT);
   
   React.useEffect(() => {
-    const newScale = Math.floor(Math.min((windowWidth - 384) / canvasWidth, (windowHeight - 160) / canvasHeight));
-    const newPanX = (windowWidth - (canvasWidth * newScale)) / 2;
-    const newPanY = (windowHeight - (canvasHeight * newScale)) / 2;
-    setScale(newScale);
+    // Calculate scale to fit canvas with some padding
+    const padding = 40;
+    const availableWidth = canvasWidth - padding;
+    const availableHeight = canvasHeight - padding;
+    
+    const scaleX = availableWidth / PIXEL_WIDTH;
+    const scaleY = availableHeight / PIXEL_HEIGHT;
+    const newScale = Math.floor(Math.min(scaleX, scaleY));
+    
+    setScale(Math.max(1, newScale)); // Ensure minimum scale of 1
+    
+    // Center the canvas
+    const artboardWidth = PIXEL_WIDTH * newScale;
+    const artboardHeight = PIXEL_HEIGHT * newScale;
+    const newPanX = (canvasWidth - artboardWidth) / 2;
+    const newPanY = (canvasHeight - artboardHeight) / 2;
     setPan({ x: newPanX, y: newPanY });
-  }, [windowWidth, windowHeight]);
+  }, [windowWidth, windowHeight, canvasWidth, canvasHeight]);
 
   const handlePixelPress = (x: number, y: number) => {
     if (x < 0 || y < 0) return;
-    if (x >= 32 || y >= 32) return;
+    if (x >= PIXEL_WIDTH || y >= PIXEL_HEIGHT) return;
     if (tool === 'pen') {
       dispatch({ type: 'DRAW_PIXEL', payload: { x, y, color, tool: 'pen' } });
     } else if (tool === 'eraser') {
@@ -71,6 +81,9 @@ const PixelArtEditor: React.FC = () => {
   const handleUndo = () => dispatch({ type: 'UNDO' });
   const handleRedo = () => dispatch({ type: 'REDO' });
 
+  const handleZoomIn = () => setScale(s => s + 1);
+  const handleZoomOut = () => setScale(s => Math.max(1, s - 1));
+
   return (
     <Provider theme={theme}>
       <View style={styles.container}>
@@ -83,7 +96,7 @@ const PixelArtEditor: React.FC = () => {
         </Appbar.Header>
 
         <View style={styles.mainArea}>
-          <LeftToolbar />
+          <LeftToolbar onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
           <View style={styles.canvasContainer}>
             <Canvas
               layers={frames[currentFrame].layers}
@@ -92,13 +105,12 @@ const PixelArtEditor: React.FC = () => {
               setPan={setPan}
               onPixelPress={handlePixelPress}
               showGrid={showGrid}
-              tool={tool}
-              color={color}
-              width={windowWidth - 344}
-              height={windowHeight - 160}
+              selectedTool={tool}
+              width={canvasWidth}
+              height={canvasHeight}
             />
           </View>
-          <RightSidebar />
+          <RightSidebar layers={frames[currentFrame].layers} />
         </View>
 
         <Timeline
@@ -108,18 +120,7 @@ const PixelArtEditor: React.FC = () => {
             onSetCurrentFrame={(i) => dispatch({ type: 'SET_CURRENT_FRAME', payload: i })}
         />
 
-        <FAB.Group
-          open={isFabOpen}
-          visible
-          icon="brush"
-          actions={[
-            { icon: 'numeric-1', label: '1px', onPress: () => {/* add brush size logic later */} },
-            { icon: 'numeric-2', label: '2px', onPress: () => {} },
-            { icon: 'numeric-3', label: '3px', onPress: () => {} },
-          ]}
-          onStateChange={() => setIsFabOpen(s => !s)}
-          style={styles.fab}
-        />
+        
       </View>
     </Provider>
   );

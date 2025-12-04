@@ -65,9 +65,6 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
-  colorPicker: {
-    marginTop: 16,
-  },
   paletteRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -127,11 +124,7 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     color: darkTheme.text,
   },
-  fab: {
-    position: 'absolute',
-    right: 16,
-    bottom: 96,
-  },
+  
   sectionTitle: {
     color: darkTheme.text,
     fontWeight: 'bold',

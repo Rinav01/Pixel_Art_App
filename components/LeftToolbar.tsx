@@ -3,10 +3,15 @@ import { Surface } from 'react-native-paper';
 import { Toolbar } from './Toolbar';
 import { styles } from './PixelArtEditor.styles';
 
-export const LeftToolbar: React.FC = () => {
+interface LeftToolbarProps {
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+}
+
+export const LeftToolbar: React.FC<LeftToolbarProps> = ({ onZoomIn, onZoomOut }) => {
   return (
     <Surface style={styles.leftToolbar}>
-      <Toolbar />
+      <Toolbar onZoomIn={onZoomIn} onZoomOut={onZoomOut} />
     </Surface>
   );
 };

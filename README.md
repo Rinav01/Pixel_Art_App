@@ -5,6 +5,8 @@ A powerful and intuitive pixel art editor built with React Native and Expo.
 ## Features
 
 *   **Drawing Tools:** A toolbar with essential tools like a pencil, eraser, and paint bucket.
+*   **Zoom:** Zoom in and out of the canvas.
+*   **Undo/Redo:** Undo and redo your actions.
 *   **Color Picker:** A color picker to select colors for drawing.
 *   **Layer Management:** Support for multiple layers to organize your artwork.
 *   **Animation Timeline:** A timeline to create animated pixel art.
@@ -20,25 +22,39 @@ A powerful and intuitive pixel art editor built with React Native and Expo.
 ## File Structure
 
 ```
-.
-├── components
-│   ├── Canvas.tsx
-│   ├── ColorPicker.tsx
-│   ├── LayerManager.tsx
-│   ├── PixelArtEditor.styles.ts
-│   ├── PixelArtEditor.tsx
-│   ├── Timeline.tsx
-│   └── Toolbar.tsx
-├── state
-│   ├── actions.ts
-│   ├── constants.ts
-│   ├── palettes.ts
-│   ├── reducer.ts
-│   ├── store.ts
-│   └── types.ts
-├── App.tsx
-├── package.json
-└── tsconfig.json
+├───.gitignore
+├───app.json
+├───App.tsx
+├───package-lock.json
+├───package.json
+├───README.md
+├───tsconfig.json
+├───.expo\
+├───.git\
+├───assets\
+│   ├───adaptive-icon.png
+│   ├───favicon.png
+│   ├───icon.png
+│   └───splash-icon.png
+├───components\
+│   ├───Canvas.tsx
+│   ├───ColorPicker.tsx
+│   ├───LayerManager.tsx
+│   ├───LeftToolbar.tsx
+│   ├───PixelArtEditor.styles.ts
+│   ├───PixelArtEditor.tsx
+│   ├───RightSidebar.tsx
+│   ├───Timeline.tsx
+│   └───Toolbar.tsx
+├───node_modules\
+└───state\
+    ├───constants.ts
+    ├───initialState.ts
+    ├───palettes.ts
+    ├───plan.txt
+    ├───reducer.ts
+    ├───store.ts
+    └───types.ts
 ```
 
 ## Getting Started

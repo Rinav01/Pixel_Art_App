@@ -32,6 +32,21 @@ export const Canvas: React.FC<CanvasProps> = ({
   const onPixelPressRef = React.useRef(onPixelPress);
   onPixelPressRef.current = onPixelPress;
 
+  const selectedToolRef = React.useRef(selectedTool);
+  React.useEffect(() => {
+    selectedToolRef.current = selectedTool;
+  }, [selectedTool]);
+
+  const panRef = React.useRef(pan);
+  React.useEffect(() => {
+    panRef.current = pan;
+  }, [pan]);
+
+  const scaleRef = React.useRef(scale);
+  React.useEffect(() => {
+    scaleRef.current = scale;
+  }, [scale]);
+
   const containerRef = React.useRef<View>(null);
   const svgOffsetRef = React.useRef({ x: 0, y: 0 });
   const onContainerLayout = () => {
@@ -62,10 +77,12 @@ export const Canvas: React.FC<CanvasProps> = ({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
       onPanResponderGrant: () => {
-        panOffsetRef.current = { ...pan };
+        console.log('onPanResponderGrant, selectedTool:', selectedToolRef.current);
+        panOffsetRef.current = { ...panRef.current };
       },
       onPanResponderMove: (evt, gestureState) => {
-        if (selectedTool === 'pan') {
+        if (selectedToolRef.current === 'pan') {
+          console.log('panning', gestureState.dx, gestureState.dy);
           const newPan = {
             x: panOffsetRef.current.x + gestureState.dx,
             y: panOffsetRef.current.y + gestureState.dy,
@@ -76,11 +93,11 @@ export const Canvas: React.FC<CanvasProps> = ({
           const pageY = evt.nativeEvent.pageY;
 
           const svgOffset = svgOffsetRef.current;
-          const localX = pageX - svgOffset.x - pan.x;
-          const localY = pageY - svgOffset.y - pan.y;
+          const localX = pageX - svgOffset.x - panRef.current.x;
+          const localY = pageY - svgOffset.y - panRef.current.y;
 
-          const pixelX = Math.floor(localX / scale);
-          const pixelY = Math.floor(localY / scale);
+          const pixelX = Math.floor(localX / scaleRef.current);
+          const pixelY = Math.floor(localY / scaleRef.current);
 
           if (pixelX >= 0 && pixelX < PIXEL_WIDTH && pixelY >= 0 && pixelY < PIXEL_HEIGHT) {
             onPixelPressRef.current(pixelX, pixelY);
@@ -90,16 +107,16 @@ export const Canvas: React.FC<CanvasProps> = ({
       onPanResponderRelease: (evt, gestureState) => {
         const isTap = Math.abs(gestureState.dx) < 5 && Math.abs(gestureState.dy) < 5;
 
-        if (isTap && selectedTool !== 'pan') {
+        if (isTap && selectedToolRef.current !== 'pan') {
           const pageX = evt.nativeEvent.pageX;
           const pageY = evt.nativeEvent.pageY;
 
           const svgOffset = svgOffsetRef.current;
-          const localX = pageX - svgOffset.x - pan.x;
-          const localY = pageY - svgOffset.y - pan.y;
+          const localX = pageX - svgOffset.x - panRef.current.x;
+          const localY = pageY - svgOffset.y - panRef.current.y;
 
-          const pixelX = Math.floor(localX / scale);
-          const pixelY = Math.floor(localY / scale);
+          const pixelX = Math.floor(localX / scaleRef.current);
+          const pixelY = Math.floor(localY / scaleRef.current);
 
           if (pixelX >= 0 && pixelX < PIXEL_WIDTH && pixelY >= 0 && pixelY < PIXEL_HEIGHT) {
             onPixelPressRef.current(pixelX, pixelY);
@@ -140,11 +157,11 @@ export const Canvas: React.FC<CanvasProps> = ({
 
     for (let gx = 0; gx <= PIXEL_WIDTH; gx++) {
       const xPos = baseX + gx * scale;
-      lines.push(<Line key={`v-${gx}`} x1={xPos} y1={baseY} x2={xPos} y2={baseY + heightPx} stroke="rgba(0,0,0,0.12)" strokeWidth={1} />);
+      lines.push(<Line key={`v-${gx}`} x1={xPos} y1={baseY} x2={xPos} y2={baseY + heightPx} stroke="rgba(0,0,0,0.5)" strokeWidth={1} />);
     }
     for (let gy = 0; gy <= PIXEL_HEIGHT; gy++) {
       const yPos = baseY + gy * scale;
-      lines.push(<Line key={`h-${gy}`} x1={baseX} y1={yPos} x2={baseX + widthPx} y2={yPos} stroke="rgba(0,0,0,0.12)" strokeWidth={1} />);
+      lines.push(<Line key={`h-${gy}`} x1={baseX} y1={yPos} x2={baseX + widthPx} y2={yPos} stroke="rgba(0,0,0,0.5)" strokeWidth={1} />);
     }
 
     return lines;

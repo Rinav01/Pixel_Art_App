@@ -17,6 +17,7 @@ export interface EditorState {
   currentLayer: string;
   color: string;
   tool: string;
+  palette: string[];
   // simple undo/redo stacks (store serialized snapshots)
   undoStack: EditorStateSnapshot[];
   redoStack: EditorStateSnapshot[];
@@ -28,4 +29,5 @@ export type EditorStateSnapshot = {
   currentLayer: string;
   color: string;
   tool: string;
+  palette: string[];
 };
