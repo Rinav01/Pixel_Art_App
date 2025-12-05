@@ -10,7 +10,7 @@ A powerful and intuitive pixel art editor built with React Native and Expo.
 *   **Color Picker:** A color picker to select colors for drawing.
 *   **Layer Management:** Support for multiple layers to organize your artwork.
 *   **Animation Timeline:** A timeline to create animated pixel art.
-*   **State Management:** A robust state management system to handle the application's state.
+*   **Theme Switching:** Switch between light and dark themes for a comfortable user experience.
 
 ## Tech Stack
 
@@ -18,6 +18,7 @@ A powerful and intuitive pixel art editor built with React Native and Expo.
 *   **Expo:** A platform for making universal React applications.
 *   **TypeScript:** A typed superset of JavaScript that compiles to plain JavaScript.
 *   **Redux-like State Management:** A predictable state container for JavaScript apps.
+*   **React Native Paper:** A cross-platform UI component library for React Native.
 
 ## File Structure
 
@@ -37,24 +38,29 @@ A powerful and intuitive pixel art editor built with React Native and Expo.
 │   ├───icon.png
 │   └───splash-icon.png
 ├───components\
+│   ├───AdvancedColorPicker.tsx
+│   ├───AnimatedAppbarAction.tsx
 │   ├───Canvas.tsx
 │   ├───ColorPicker.tsx
+│   ├───ColorPickerModal.tsx
+│   ├───CustomTooltip.tsx
 │   ├───LayerManager.tsx
 │   ├───LeftToolbar.tsx
+│   ├───Palette.tsx
 │   ├───PixelArtEditor.styles.ts
 │   ├───PixelArtEditor.tsx
 │   ├───RightSidebar.tsx
 │   ├───Timeline.tsx
 │   └───Toolbar.tsx
 ├───node_modules\
-└───state\
-    ├───constants.ts
-    ├───initialState.ts
-    ├───palettes.ts
-    ├───plan.txt
-    ├───reducer.ts
-    ├───store.ts
-    └───types.ts
+├───state\
+│   ├───constants.ts
+│   ├───initialState.ts
+│   ├───reducer.ts
+│   ├───store.ts
+│   └───types.ts
+└───theme\
+    └───themes.ts
 ```
 
 ## Getting Started

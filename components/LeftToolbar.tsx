@@ -1,7 +1,7 @@
 import React from 'react';
-import { Surface } from 'react-native-paper';
+import { Surface, useTheme } from 'react-native-paper';
 import { Toolbar } from './Toolbar';
-import { styles } from './PixelArtEditor.styles';
+import { getStyles } from './PixelArtEditor.styles';
 
 interface LeftToolbarProps {
   onZoomIn: () => void;
@@ -9,6 +9,9 @@ interface LeftToolbarProps {
 }
 
 export const LeftToolbar: React.FC<LeftToolbarProps> = ({ onZoomIn, onZoomOut }) => {
+  const theme = useTheme();
+  const styles = getStyles(theme);
+
   return (
     <Surface style={styles.leftToolbar}>
       <Toolbar onZoomIn={onZoomIn} onZoomOut={onZoomOut} />

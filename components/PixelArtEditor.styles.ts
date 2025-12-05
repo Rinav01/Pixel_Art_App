@@ -1,20 +1,10 @@
 import { StyleSheet } from 'react-native';
+import { Theme } from 'react-native-paper/lib/typescript/types';
 
-const darkTheme = {
-  background: '#121212',
-  surface: '#1e1e1e',
-  primary: '#BB86FC',
-  secondary: '#03DAC6',
-  text: '#ffffff',
-  placeholder: '#a0a0a0',
-  border: '#333333',
-  active: '#3700B3',
-};
-
-export const styles = StyleSheet.create({
+export const getStyles = (theme: Theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: darkTheme.background,
+    backgroundColor: theme.colors.background,
   },
   mainArea: {
     flex: 1,
@@ -22,12 +12,12 @@ export const styles = StyleSheet.create({
   },
   leftToolbar: {
     width: 64,
-    backgroundColor: darkTheme.surface,
+    backgroundColor: theme.colors.surface,
     padding: 4,
   },
   rightSidebar: {
     width: 280,
-    backgroundColor: darkTheme.surface,
+    backgroundColor: theme.colors.surface,
     padding: 8,
   },
   canvasContainer: {
@@ -35,7 +25,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#2c2c2c', // Checkerboard-like background
+    backgroundColor: theme.colors.onSurfaceVariant, 
   },
   toolbar: {
     backgroundColor: 'transparent',
@@ -48,7 +38,7 @@ export const styles = StyleSheet.create({
   divider: {
     width: '80%',
     height: 1,
-    backgroundColor: darkTheme.border,
+    backgroundColor: theme.colors.outline,
     marginVertical: 8,
   },
   colorButton: {
@@ -56,11 +46,11 @@ export const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: darkTheme.text,
+    borderColor: theme.colors.onSurface,
     marginVertical: 8,
   },
   scaleText: {
-    color: darkTheme.text,
+    color: theme.colors.onSurface,
     marginVertical: 4,
     fontSize: 14,
     fontWeight: 'bold',
@@ -77,17 +67,17 @@ export const styles = StyleSheet.create({
     height: 32,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: darkTheme.border,
+    borderColor: theme.colors.outline,
   },
   selectedColor: {
-    borderColor: darkTheme.primary,
+    borderColor: theme.colors.primary,
     borderWidth: 3,
     transform: [{ scale: 1.1 }],
   },
   timeline: {
-    backgroundColor: darkTheme.surface,
+    backgroundColor: theme.colors.surface,
     borderTopWidth: 1,
-    borderTopColor: darkTheme.border,
+    borderTopColor: theme.colors.outline,
     paddingVertical: 8,
     height: 80,
   },
@@ -99,7 +89,7 @@ export const styles = StyleSheet.create({
   },
   frameChip: {
     marginHorizontal: 4,
-    backgroundColor: darkTheme.background,
+    backgroundColor: theme.colors.background,
   },
   layerList: {
     gap: 8,
@@ -107,10 +97,10 @@ export const styles = StyleSheet.create({
   },
   layerItem: {
     borderRadius: 8,
-    backgroundColor: '#2a2a2a',
+    backgroundColor: theme.colors.surfaceVariant,
   },
   activeLayer: {
-    backgroundColor: darkTheme.active,
+    backgroundColor: theme.colors.primary,
     elevation: 3,
   },
   layerRow: {
@@ -122,15 +112,13 @@ export const styles = StyleSheet.create({
   layerName: {
     flex: 1,
     fontSize: 16,
-    color: darkTheme.text,
+    color: theme.colors.onSurface,
   },
   
   sectionTitle: {
-    color: darkTheme.text,
+    color: theme.colors.onSurface,
     fontWeight: 'bold',
     marginBottom: 8,
     fontSize: 16,
   },
-  // Remove unused styles
-  // modal, modalTitle, addButton, closeButton
 });

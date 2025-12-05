@@ -1,17 +1,24 @@
 import React from 'react';
 import { View, useWindowDimensions } from 'react-native';
-import { Appbar, Provider, useTheme } from 'react-native-paper';
+import { Appbar, useTheme } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux';
 import type { EditorState } from '../state/types';
 import { Canvas } from './Canvas';
 import { Timeline } from './Timeline';
 import { LeftToolbar } from './LeftToolbar';
 import { RightSidebar } from './RightSidebar';
-import { styles } from './PixelArtEditor.styles';
+import { getStyles } from './PixelArtEditor.styles';
 import { PIXEL_HEIGHT, PIXEL_WIDTH } from '../state/constants';
+import { AnimatedAppbarAction } from './AnimatedAppbarAction';
 
-const PixelArtEditor: React.FC = () => {
+interface PixelArtEditorProps {
+  isDarkMode: boolean;
+  setIsDarkMode: () => void;
+}
+
+const PixelArtEditor: React.FC<PixelArtEditorProps> = ({ isDarkMode, setIsDarkMode }) => {
   const theme = useTheme();
+  const styles = getStyles(theme);
   const dispatch = useDispatch();
   const frames = useSelector((s: EditorState) => s.frames);
   const currentFrame = useSelector((s: EditorState) => s.currentFrame);
@@ -80,49 +87,48 @@ const PixelArtEditor: React.FC = () => {
 
   const handleUndo = () => dispatch({ type: 'UNDO' });
   const handleRedo = () => dispatch({ type: 'REDO' });
+  const handleDeleteFrame = (id: string) => dispatch({ type: 'DELETE_FRAME', payload: id });
 
   const handleZoomIn = () => setScale(s => s + 1);
   const handleZoomOut = () => setScale(s => Math.max(1, s - 1));
 
   return (
-    <Provider theme={theme}>
-      <View style={styles.container}>
-        <Appbar.Header>
-          <Appbar.Content title="Pixel Art Editor" />
-          <Appbar.Action icon="grid" onPress={() => setShowGrid(s => !s)} color={showGrid ? theme.colors.primary : undefined} />
-          <Appbar.Action icon="undo" onPress={handleUndo} />
-          <Appbar.Action icon="redo" onPress={handleRedo} />
-          <Appbar.Action icon="download" onPress={() => { /* Implement download */ }} />
-        </Appbar.Header>
+    <View style={styles.container}>
+      <Appbar.Header>
+        <Appbar.Content title="Pixel Art Editor" />
+        <AnimatedAppbarAction icon={isDarkMode ? 'white-balance-sunny' : 'moon-waning-crescent'} onPress={setIsDarkMode} />
+        <AnimatedAppbarAction icon="grid" onPress={() => setShowGrid(s => !s)} color={showGrid ? theme.colors.primary : undefined} />
+        <AnimatedAppbarAction icon="undo" onPress={handleUndo} />
+        <AnimatedAppbarAction icon="redo" onPress={handleRedo} />
+        <AnimatedAppbarAction icon="download" onPress={() => { /* Implement download */ }} />
+      </Appbar.Header>
 
-        <View style={styles.mainArea}>
-          <LeftToolbar onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
-          <View style={styles.canvasContainer}>
-            <Canvas
-              layers={frames[currentFrame].layers}
-              scale={scale}
-              pan={pan}
-              setPan={setPan}
-              onPixelPress={handlePixelPress}
-              showGrid={showGrid}
-              selectedTool={tool}
-              width={canvasWidth}
-              height={canvasHeight}
-            />
-          </View>
-          <RightSidebar layers={frames[currentFrame].layers} />
+      <View style={styles.mainArea}>
+        <LeftToolbar onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
+        <View style={styles.canvasContainer}>
+          <Canvas
+            layers={frames[currentFrame].layers}
+            scale={scale}
+            pan={pan}
+            setPan={setPan}
+            onPixelPress={handlePixelPress}
+            showGrid={showGrid}
+            selectedTool={tool}
+            width={canvasWidth}
+            height={canvasHeight}
+          />
         </View>
-
-        <Timeline
-            frames={frames}
-            currentFrame={currentFrame}
-            onAddFrame={() => dispatch({ type: 'ADD_FRAME' })}
-            onSetCurrentFrame={(i) => dispatch({ type: 'SET_CURRENT_FRAME', payload: i })}
-        />
-
-        
+        <RightSidebar layers={frames[currentFrame].layers} />
       </View>
-    </Provider>
+
+      <Timeline
+          frames={frames}
+          currentFrame={currentFrame}
+          onAddFrame={() => dispatch({ type: 'ADD_FRAME' })}
+          onSetCurrentFrame={(i) => dispatch({ type: 'SET_CURRENT_FRAME', payload: i })}
+          onDeleteFrame={handleDeleteFrame}
+      />
+    </View>
   );
 };
 

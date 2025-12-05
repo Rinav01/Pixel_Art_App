@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, PanResponder } from 'react-native';
 import Svg, { Rect, G, Line } from 'react-native-svg';
+import { useTheme } from 'react-native-paper';
 import { PIXEL_WIDTH, PIXEL_HEIGHT } from '../state/constants';
 import type { Layer } from '../state/types';
 
@@ -29,6 +30,7 @@ export const Canvas: React.FC<CanvasProps> = ({
   height,
   selectedTool,
 }) => {
+  const theme = useTheme();
   const onPixelPressRef = React.useRef(onPixelPress);
   onPixelPressRef.current = onPixelPress;
 
@@ -157,15 +159,15 @@ export const Canvas: React.FC<CanvasProps> = ({
 
     for (let gx = 0; gx <= PIXEL_WIDTH; gx++) {
       const xPos = baseX + gx * scale;
-      lines.push(<Line key={`v-${gx}`} x1={xPos} y1={baseY} x2={xPos} y2={baseY + heightPx} stroke="rgba(0,0,0,0.5)" strokeWidth={1} />);
+      lines.push(<Line key={`v-${gx}`} x1={xPos} y1={baseY} x2={xPos} y2={baseY + heightPx} stroke={theme.colors.outline} strokeWidth={0.5} />);
     }
     for (let gy = 0; gy <= PIXEL_HEIGHT; gy++) {
       const yPos = baseY + gy * scale;
-      lines.push(<Line key={`h-${gy}`} x1={baseX} y1={yPos} x2={baseX + widthPx} y2={yPos} stroke="rgba(0,0,0,0.5)" strokeWidth={1} />);
+      lines.push(<Line key={`h-${gy}`} x1={baseX} y1={yPos} x2={baseX + widthPx} y2={yPos} stroke={theme.colors.outline} strokeWidth={0.5} />);
     }
 
     return lines;
-  }, [showGrid, scale, pan.x, pan.y]);
+  }, [showGrid, scale, pan.x, pan.y, theme.colors.outline]);
 
   return (
     <View ref={containerRef} style={{ flex: 1 }} onLayout={onContainerLayout} {...panResponder.panHandlers}>
@@ -176,8 +178,8 @@ export const Canvas: React.FC<CanvasProps> = ({
             y={pan.y}
             width={PIXEL_WIDTH * scale}
             height={PIXEL_HEIGHT * scale}
-            fill="#ffffff"
-            stroke="#e0e0e0"
+            fill={theme.colors.onBackground}
+            stroke={theme.colors.outline}
             strokeWidth={1}
             rx={2}
           />

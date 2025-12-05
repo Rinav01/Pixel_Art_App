@@ -112,13 +112,36 @@ export function editorReducer(state: EditorState = initialState, action: any): E
         ...state,
         frames: [...state.frames, newFrame],
         currentFrame: state.frames.length,
+        currentLayer: newFrame.layers[0].id,
+        undoStack: [...state.undoStack, snapshot(state)].slice(-50),
+        redoStack: [],
+      };
+    }
+
+    case 'DELETE_FRAME': {
+      const frameId = action.payload;
+      const newFrames = state.frames.filter(f => f.id !== frameId);
+      if (newFrames.length === state.frames.length) {
+        return state; // Frame not found
+      }
+      let newCurrentFrame = state.currentFrame;
+      if (state.currentFrame >= newFrames.length) {
+        newCurrentFrame = newFrames.length - 1;
+      }
+      return {
+        ...state,
+        frames: newFrames,
+        currentFrame: newCurrentFrame,
         undoStack: [...state.undoStack, snapshot(state)].slice(-50),
         redoStack: [],
       };
     }
 
     case 'SET_CURRENT_FRAME': {
-      return { ...state, currentFrame: action.payload };
+      const newFrameIndex = action.payload;
+      const newFrame = state.frames[newFrameIndex];
+      const newCurrentLayer = newFrame.layers.length > 0 ? newFrame.layers[newFrame.layers.length - 1].id : '';
+      return { ...state, currentFrame: newFrameIndex, currentLayer: newCurrentLayer };
     }
 
     case 'SET_TOOL': {
