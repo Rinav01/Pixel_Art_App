@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
-import { Theme } from 'react-native-paper/lib/typescript/types';
+import { MD3Theme } from 'react-native-paper';
 
-export const getStyles = (theme: Theme) => StyleSheet.create({
+export const getStyles = (theme: MD3Theme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,

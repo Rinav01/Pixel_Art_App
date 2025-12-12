@@ -33,9 +33,9 @@ export const ColorPickerModal: React.FC<ColorPickerModalProps> = ({ visible, onD
   return (
     <Modal visible={visible} onDismiss={onDismiss} contentContainerStyle={{ backgroundColor: 'transparent' }}>
       <Animated.View style={[{ backgroundColor: theme.colors.surface, padding: 20, margin: 20, borderRadius: 8 }, modalStyle]}>
-        <AdvancedColorPicker />
+        <AdvancedColorPicker onDismiss={onDismiss} />
         <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 20 }}>
-          <Button onPress={onDismiss} mode="contained">Done</Button>
+          <Button onPress={onDismiss} mode="contained">Cancel</Button>
         </View>
       </Animated.View>
     </Modal>

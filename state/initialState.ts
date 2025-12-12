@@ -1,7 +1,6 @@
 import { EditorState } from './types';
 import { PIXEL_WIDTH, PIXEL_HEIGHT } from './constants';
 
-
 export const initialState: EditorState = {
   frames: [
     {

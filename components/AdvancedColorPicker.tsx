@@ -47,26 +47,32 @@ const ColorPlane = ({ hue, onColorSelect, styles }: { hue: number; onColorSelect
   );
 };
 
-export const AdvancedColorPicker = () => {
+export const AdvancedColorPicker = ({ onDismiss }: { onDismiss?: () => void }) => {
   const theme = useTheme();
   const styles = getStyles(theme);
   const dispatch = useDispatch();
   const color = useSelector((state: EditorState) => state.color);
+  const [selectedColor, setSelectedColor] = useState(color);
   const [hue, setHue] = useState(tinycolor(color).toHsv().h);
 
   const handleColorSelect = (newColor: string) => {
+    setSelectedColor(newColor);
     dispatch({ type: 'SET_COLOR', payload: newColor });
   };
 
   const handleHueChange = (newHue: number) => {
     setHue(newHue);
-    const { s, v } = tinycolor(color).toHsv();
+    const { s, v } = tinycolor(selectedColor).toHsv();
     const newColor = tinycolor({ h: newHue, s, v }).toHexString();
+    setSelectedColor(newColor);
     dispatch({ type: 'SET_COLOR', payload: newColor });
   };
 
   const handleAddToPalette = () => {
-    dispatch({ type: 'ADD_COLOR_TO_PALETTE', payload: color });
+    dispatch({ type: 'ADD_COLOR_TO_PALETTE', payload: selectedColor });
+    if (onDismiss) {
+      onDismiss();
+    }
   };
 
   return (
@@ -80,7 +86,7 @@ export const AdvancedColorPicker = () => {
         value={hue}
         onValueChange={handleHueChange}
       />
-      <View style={[styles.preview, { backgroundColor: color }]} />
+      <View style={[styles.preview, { backgroundColor: selectedColor }]} />
       <Button mode="contained" onPress={handleAddToPalette} style={{ marginTop: 16 }}>
         Add to Palette
       </Button>

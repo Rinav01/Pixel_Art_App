@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, TouchableOpacity, Animated } from 'react-native';
 import { IconButton, useTheme } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
 import { getStyles } from './PixelArtEditor.styles';
 import type { EditorState } from '../state/types';
 import { CustomTooltip } from './CustomTooltip';
+import { ColorPickerModal } from './ColorPickerModal';
 
 interface AnimatedIconButtonProps {
   icon: string;
@@ -46,19 +47,22 @@ const AnimatedIconButton: React.FC<AnimatedIconButtonProps> = ({ icon, onPress, 
 
   return (
     <CustomTooltip title={title}>
-      <Animated.View
-        style={{ transform: [{ scale: combinedScale }] }}
+      <div
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <IconButton
-          icon={icon}
-          onPress={onPress}
-          mode={isSelected ? 'contained' : 'outlined'}
-          containerColor={isSelected ? theme.colors.primary : undefined}
-          iconColor={isSelected ? theme.colors.onPrimary : theme.colors.onSurface}
-        />
-      </Animated.View>
+        <Animated.View
+          style={{ transform: [{ scale: combinedScale }] }}
+        >
+          <IconButton
+            icon={icon}
+            onPress={onPress}
+            mode={isSelected ? 'contained' : 'outlined'}
+            containerColor={isSelected ? theme.colors.primary : undefined}
+            iconColor={isSelected ? theme.colors.onPrimary : theme.colors.onSurface}
+          />
+        </Animated.View>
+      </div>
     </CustomTooltip>
   );
 };
@@ -74,6 +78,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onZoomIn, onZoomOut }) => {
   const dispatch = useDispatch();
   const tool = useSelector((s: EditorState) => s.tool);
   const color = useSelector((s: EditorState) => s.color);
+  const [isColorPickerVisible, setColorPickerVisible] = React.useState(false);
 
   const handleToolChange = (newTool: string) => dispatch({ type: 'SET_TOOL', payload: newTool });
 
@@ -87,7 +92,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onZoomIn, onZoomOut }) => {
       <AnimatedIconButton icon="magnify-plus-outline" title="Zoom In" onPress={onZoomIn} />
       <AnimatedIconButton icon="magnify-minus-outline" title="Zoom Out" onPress={onZoomOut} />
       <View style={styles.divider} />
-      <TouchableOpacity style={[styles.colorButton, { backgroundColor: color }]} onPress={() => { /* Open color picker modal or navigate */ }} />
+      <TouchableOpacity style={[styles.colorButton, { backgroundColor: color }]} onPress={() => setColorPickerVisible(true)} />
+      <ColorPickerModal visible={isColorPickerVisible} onDismiss={() => setColorPickerVisible(false)} />
     </View>
   );
 };
