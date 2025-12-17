@@ -1,22 +1,44 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { View, StyleSheet, Text, StyleProp, ViewStyle } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import Slider from '@react-native-community/slider';
-import { PanGestureHandler } from 'react-native-gesture-handler';
+import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import { LinearGradient } from 'expo-linear-gradient';
 import tinycolor from 'tinycolor2';
 import { useTheme, Button } from 'react-native-paper';
 import { EditorState } from '../state/types';
 
-const ColorPlane = ({ hue, onColorSelect, styles }: { hue: number; onColorSelect: (color: string) => void, styles: any }) => {
-  const [markerPosition, setMarkerPosition] = useState({ x: 0, y: 200 });
+const ColorPlane = ({ hue, saturation, value, onColorSelect, styles }: { hue: number; saturation: number; value: number; onColorSelect: (color: string) => void, styles: any }) => {
+  const [markerPosition, setMarkerPosition] = useState({ x: saturation * 200, y: (1 - value) * 200 });
+  const [isGestureActive, setIsGestureActive] = useState(false);
 
-  const handleGesture = (event: { nativeEvent: { x: any; y: any; }; }) => {
+  useEffect(() => {
+    setMarkerPosition({ x: saturation * 200, y: (1 - value) * 200 });
+  }, [saturation, value]);
+
+  const handleGestureStateChange = (event: { nativeEvent: { state: number; x: number; y: number; }; }) => {
+    const { state, x, y } = event.nativeEvent;
+    if (state === State.BEGAN) {
+      setIsGestureActive(true);
+    } else if (state === State.END || state === State.CANCELLED || state === State.FAILED) {
+      setIsGestureActive(false);
+    }
+    if (isGestureActive && x >= 0 && x <= 200 && y >= 0 && y <= 200) {
+      const newSaturation = x / 200;
+      const newValue = 1 - y / 200;
+      const color = tinycolor({ h: hue, s: newSaturation, v: newValue });
+      onColorSelect(color.toHexString());
+      setMarkerPosition({ x, y });
+    }
+  };
+
+  const handleGestureEvent = (event: { nativeEvent: { x: number; y: number; }; }) => {
+    if (!isGestureActive) return;
     const { x, y } = event.nativeEvent;
     if (x >= 0 && x <= 200 && y >= 0 && y <= 200) {
-      const saturation = x / 200;
-      const value = 1 - y / 200;
-      const color = tinycolor({ h: hue, s: saturation, v: value });
+      const newSaturation = x / 200;
+      const newValue = 1 - y / 200;
+      const color = tinycolor({ h: hue, s: newSaturation, v: newValue });
       onColorSelect(color.toHexString());
       setMarkerPosition({ x, y });
     }
@@ -26,7 +48,7 @@ const ColorPlane = ({ hue, onColorSelect, styles }: { hue: number; onColorSelect
 
   return (
     <View style={styles.planeContainer}>
-      <PanGestureHandler onGestureEvent={handleGesture} onHandlerStateChange={handleGesture}>
+      <PanGestureHandler onHandlerStateChange={handleGestureStateChange} onGestureEvent={handleGestureEvent}>
         <View style={[styles.plane, { backgroundColor }]}>
           <LinearGradient
             colors={['rgba(255,255,255,1)', 'rgba(255,255,255,0)']}
@@ -54,63 +76,107 @@ export const AdvancedColorPicker = ({ onDismiss }: { onDismiss?: () => void }) =
   const color = useSelector((state: EditorState) => state.color);
   const [selectedColor, setSelectedColor] = useState(color);
   const [hue, setHue] = useState(tinycolor(color).toHsv().h);
+  const [saturation, setSaturation] = useState(tinycolor(color).toHsv().s);
+  const [value, setValue] = useState(tinycolor(color).toHsv().v);
 
   const handleColorSelect = (newColor: string) => {
     setSelectedColor(newColor);
+    const hsv = tinycolor(newColor).toHsv();
+    setHue(hsv.h);
+    setSaturation(hsv.s);
+    setValue(hsv.v);
     dispatch({ type: 'SET_COLOR', payload: newColor });
   };
 
   const handleHueChange = (newHue: number) => {
     setHue(newHue);
-    const { s, v } = tinycolor(selectedColor).toHsv();
-    const newColor = tinycolor({ h: newHue, s, v }).toHexString();
+    const newColor = tinycolor({ h: newHue, s: saturation, v: value }).toHexString();
     setSelectedColor(newColor);
     dispatch({ type: 'SET_COLOR', payload: newColor });
   };
 
   const handleAddToPalette = () => {
+    console.log('Adding to palette:', selectedColor);
     dispatch({ type: 'ADD_COLOR_TO_PALETTE', payload: selectedColor });
+    console.log('onDismiss exists:', !!onDismiss);
     if (onDismiss) {
       onDismiss();
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Color Picker</Text>
-      <ColorPlane hue={hue} onColorSelect={handleColorSelect} styles={styles} />
-      <Slider
-        style={styles.slider}
-        minimumValue={0}
-        maximumValue={360}
-        value={hue}
-        onValueChange={handleHueChange}
-      />
-      <View style={[styles.preview, { backgroundColor: selectedColor }]} />
-      <Button mode="contained" onPress={handleAddToPalette} style={{ marginTop: 16 }}>
-        Add to Palette
-      </Button>
-    </View>
+    <>
+      <View style={styles.backdrop} onTouchEnd={onDismiss} />
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <Text style={styles.title}>Color Picker</Text>
+          <ColorPlane hue={hue} saturation={saturation} value={value} onColorSelect={handleColorSelect} styles={styles} />
+          <Slider
+            style={styles.slider}
+            minimumValue={0}
+            maximumValue={360}
+            value={hue}
+            onValueChange={handleHueChange}
+          />
+          <View style={[styles.preview, { backgroundColor: selectedColor }]} />
+          <Button mode="contained" onPress={handleAddToPalette} style={{ marginTop: 16 }}>
+            Add to Palette
+          </Button>
+          <Button mode="outlined" onPress={onDismiss} style={{ marginTop: 8 }}>
+            Cancel
+          </Button>
+        </View>
+      </View>
+    </>
   );
 };
 
 const getStyles = (theme: any) => StyleSheet.create({
   container: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: '-50%' }, { translateY: '-50%' }],
+    zIndex: 1000,
+    elevation: 10,
+  },
+  backdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    zIndex: 999,
+  },
+  content: {
+    backgroundColor: theme.colors.surface,
     alignItems: 'center',
-    width: '100%',
+    paddingVertical: 24,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    shadowColor: theme.colors.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: theme.colors.outline,
   },
   title: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 16,
     color: theme.colors.onSurface,
   },
   planeContainer: {
-    width: 200,
-    height: 200,
-    marginBottom: 16,
+    width: 220,
+    height: 220,
+    marginBottom: 20,
     borderRadius: 8,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: theme.colors.outline,
   },
   plane: {
     width: '100%',
@@ -135,14 +201,14 @@ const getStyles = (theme: any) => StyleSheet.create({
     shadowRadius: 2,
   },
   slider: {
-    width: 200,
+    width: 220,
     height: 40,
   },
   preview: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginTop: 16,
+    width: 48,
+    height: 48,
+    borderRadius: 8,
+    marginTop: 20,
     borderWidth: 2,
     borderColor: theme.colors.outline,
   },
