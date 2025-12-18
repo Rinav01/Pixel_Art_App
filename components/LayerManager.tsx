@@ -1,8 +1,7 @@
 import React from 'react';
 import { ScrollView, View, Animated } from 'react-native';
 import { Text, List, IconButton, Button, useTheme } from 'react-native-paper';
-import { useSelector, useDispatch } from 'react-redux';
-import type { EditorState, Layer } from '../state/types';
+import type { Layer } from '../state/types';
 import { getStyles } from './PixelArtEditor.styles';
 
 interface AnimatedLayerItemProps {
@@ -73,19 +72,25 @@ const AnimatedLayerItem: React.FC<AnimatedLayerItemProps> = ({
   );
 };
 
-export const LayerManager: React.FC = () => {
+interface LayerManagerProps {
+    layers: Layer[];
+    currentLayer: string;
+    currentFrame: number;
+    dispatch: React.Dispatch<any>;
+}
+
+export const LayerManager: React.FC<LayerManagerProps> = ({ layers, currentLayer, currentFrame, dispatch }) => {
   const theme = useTheme();
   const styles = getStyles(theme);
-  const dispatch = useDispatch();
-  const { layers, currentFrame, currentLayer } = useSelector((s: EditorState) => ({
-    layers: s.frames[s.currentFrame].layers,
-    currentLayer: s.currentLayer,
-    currentFrame: s.currentFrame,
-  }));
 
-  const handleAddLayer = () => dispatch({ type: 'ADD_LAYER' });
-  const handleDeleteLayer = (id: string) => dispatch({ type: 'DELETE_LAYER', payload: id });
-  const handleToggleLayerVisibility = (id: string) => dispatch({ type: 'TOGGLE_LAYER_VISIBILITY', payload: id });
+  const handleAddLayer = () => {
+    const newLayerId = `layer${Date.now()}`;
+    const newLayerName = `Layer ${layers.length + 1}`;
+    dispatch({ type: 'ADD_LAYER', payload: { frameIndex: currentFrame, layerId: newLayerId, name: newLayerName } });
+    dispatch({ type: 'SET_CURRENT_LAYER', payload: newLayerId });
+  };
+  const handleDeleteLayer = (id: string) => dispatch({ type: 'DELETE_LAYER', payload: { frameIndex: currentFrame, layerId: id } });
+  const handleToggleLayerVisibility = (id: string) => dispatch({ type: 'TOGGLE_LAYER_VISIBILITY', payload: { frameIndex: currentFrame, layerId: id } });
   const handleSetCurrentLayer = (id: string) => dispatch({ type: 'SET_CURRENT_LAYER', payload: id });
 
   return (

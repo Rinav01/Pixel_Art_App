@@ -3,13 +3,15 @@ import { View, useWindowDimensions } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux';
 import type { EditorState } from '../state/types';
-import { Canvas } from './Canvas';
+
 import { Timeline } from './Timeline';
 import { LeftToolbar } from './LeftToolbar';
 import { RightSidebar } from './RightSidebar';
 import { getStyles } from './PixelArtEditor.styles';
 import { PIXEL_HEIGHT, PIXEL_WIDTH } from '../state/constants';
 import { AnimatedAppbarAction } from './AnimatedAppbarAction';
+// @ts-ignore
+import { SkiaCanvas } from './SkiaCanvas';
 
 interface PixelArtEditorProps {
   isDarkMode: boolean;
@@ -20,6 +22,7 @@ const PixelArtEditor: React.FC<PixelArtEditorProps> = ({ isDarkMode, setIsDarkMo
   const theme = useTheme();
   const styles = getStyles(theme);
   const dispatch = useDispatch();
+  
   const frames = useSelector((s: EditorState) => s.frames);
   const currentFrame = useSelector((s: EditorState) => s.currentFrame);
   const currentLayer = useSelector((s: EditorState) => s.currentLayer);
@@ -65,11 +68,11 @@ const PixelArtEditor: React.FC<PixelArtEditorProps> = ({ isDarkMode, setIsDarkMo
     if (x < 0 || y < 0) return;
     if (x >= PIXEL_WIDTH || y >= PIXEL_HEIGHT) return;
     if (tool === 'pen') {
-      dispatch({ type: 'DRAW_PIXEL', payload: { x, y, color, tool: 'pen' } });
+      dispatch({ type: 'DRAW_PIXEL', payload: { frameIndex: currentFrame, layerId: currentLayer, x, y, color } });
     } else if (tool === 'eraser') {
-      dispatch({ type: 'DRAW_PIXEL', payload: { x, y, tool: 'eraser' } });
+      dispatch({ type: 'DRAW_PIXEL', payload: { frameIndex: currentFrame, layerId: currentLayer, x, y, color: null } });
     } else if (tool === 'fill') {
-      dispatch({ type: 'FILL', payload: { x, y, color } });
+      dispatch({ type: 'FILL', payload: { frameIndex: currentFrame, layerId: currentLayer, x, y, color } });
     } else if (tool === 'eyedropper') {
       // sample top-most visible layer at x,y
       const layers = frames[currentFrame].layers;
@@ -85,12 +88,28 @@ const PixelArtEditor: React.FC<PixelArtEditorProps> = ({ isDarkMode, setIsDarkMo
     }
   };
 
-  const handleUndo = () => dispatch({ type: 'UNDO' });
-  const handleRedo = () => dispatch({ type: 'REDO' });
-  const handleDeleteFrame = (id: string) => dispatch({ type: 'DELETE_FRAME', payload: id });
+  const handleDeleteFrame = (id: string) => {
+    const frameIndex = frames.findIndex(f => f.id === id);
+    if (frameIndex === -1) return;
+    dispatch({ type: 'DELETE_FRAME', payload: { frameIndex } });
+    dispatch({ type: 'SET_CURRENT_FRAME', payload:  Math.max(0, currentFrame - 1) });
+  };
+
+  const handleAddFrame = () => {
+    dispatch({ type: 'ADD_FRAME' });
+    dispatch({ type: 'SET_CURRENT_FRAME', payload: frames.length });
+  };
 
   const handleZoomIn = () => setScale(s => s + 1);
   const handleZoomOut = () => setScale(s => Math.max(1, s - 1));
+
+  // const handleUndo = () => {
+  //   // Implement undo logic
+  // };
+
+  // const handleRedo = () => {
+  //   // Implement redo logic
+  // };
 
   return (
     <View style={styles.container}>
@@ -98,15 +117,15 @@ const PixelArtEditor: React.FC<PixelArtEditorProps> = ({ isDarkMode, setIsDarkMo
         <Appbar.Content title="Pixel Art Editor" />
         <AnimatedAppbarAction icon={isDarkMode ? 'white-balance-sunny' : 'moon-waning-crescent'} onPress={setIsDarkMode} />
         <AnimatedAppbarAction icon="grid" onPress={() => setShowGrid(s => !s)} color={showGrid ? theme.colors.primary : undefined} />
-        <AnimatedAppbarAction icon="undo" onPress={handleUndo} />
-        <AnimatedAppbarAction icon="redo" onPress={handleRedo} />
+        {/* <AnimatedAppbarAction icon="undo" onPress={handleUndo} /> */}
+        {/* <AnimatedAppbarAction icon="redo" onPress={handleRedo} /> */}
         <AnimatedAppbarAction icon="download" onPress={() => { /* Implement download */ }} />
       </Appbar.Header>
 
       <View style={styles.mainArea}>
         <LeftToolbar onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
         <View style={styles.canvasContainer}>
-          <Canvas
+          <SkiaCanvas
             layers={frames[currentFrame].layers}
             scale={scale}
             pan={pan}
@@ -118,13 +137,19 @@ const PixelArtEditor: React.FC<PixelArtEditorProps> = ({ isDarkMode, setIsDarkMo
             height={canvasHeight}
           />
         </View>
-        <RightSidebar layers={frames[currentFrame].layers} />
+        <RightSidebar
+          layers={frames[currentFrame].layers}
+          currentLayer={currentLayer}
+          currentFrame={currentFrame}
+          dispatch={dispatch}
+          selectedTool={tool}
+        />
       </View>
 
       <Timeline
           frames={frames}
           currentFrame={currentFrame}
-          onAddFrame={() => dispatch({ type: 'ADD_FRAME' })}
+          onAddFrame={handleAddFrame}
           onSetCurrentFrame={(i) => dispatch({ type: 'SET_CURRENT_FRAME', payload: i })}
           onDeleteFrame={handleDeleteFrame}
       />

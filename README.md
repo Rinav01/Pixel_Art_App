@@ -11,6 +11,8 @@ A powerful and intuitive pixel art editor built with React Native and Expo.
 *   **Layer Management:** Support for multiple layers to organize your artwork.
 *   **Animation Timeline:** A timeline to create animated pixel art.
 *   **Theme Switching:** Switch between light and dark themes for a comfortable user experience.
+*   **Improved Touch Handling:** Enhanced touch interactions for a smoother drawing experience on both native and web platforms.
+*   **Web Compatibility:** Fixed rendering issues to ensure full functionality of the pixel art canvas in web browsers.
 
 ## Tech Stack
 
@@ -19,6 +21,8 @@ A powerful and intuitive pixel art editor built with React Native and Expo.
 *   **TypeScript:** A typed superset of JavaScript that compiles to plain JavaScript.
 *   **Redux-like State Management:** A predictable state container for JavaScript apps.
 *   **React Native Paper:** A cross-platform UI component library for React Native.
+*   **React Native Gesture Handler:** A library for handling touch gestures in React Native.
+*   **React Native Reanimated:** A library for creating smooth animations in React Native.
 
 ## File Structure
 
@@ -40,7 +44,6 @@ A powerful and intuitive pixel art editor built with React Native and Expo.
 ├───components\
 │   ├───AdvancedColorPicker.tsx
 │   ├───AnimatedAppbarAction.tsx
-│   ├───Canvas.tsx
 │   ├───ColorPicker.tsx
 │   ├───ColorPickerModal.tsx
 │   ├───CustomTooltip.tsx
@@ -49,16 +52,21 @@ A powerful and intuitive pixel art editor built with React Native and Expo.
 │   ├───Palette.tsx
 │   ├───PixelArtEditor.styles.ts
 │   ├───PixelArtEditor.tsx
+│   ├───Preview.tsx
 │   ├───RightSidebar.tsx
+│   ├───SkiaCanvas.native.tsx
+│   ├───SkiaCanvas.web.tsx
 │   ├───Timeline.tsx
 │   └───Toolbar.tsx
 ├───node_modules\
 ├───state\
+│   ├───canvasReducer.ts
 │   ├───constants.ts
 │   ├───initialState.ts
 │   ├───reducer.ts
 │   ├───store.ts
-│   └───types.ts
+│   ├───types.ts
+│   └───utils.ts
 └───theme\
     └───themes.ts
 ```

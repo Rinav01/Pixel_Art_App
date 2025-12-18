@@ -31,7 +31,10 @@
       ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "experiments": {
+        "skia": true
+      }
     },
     "plugins": [
       [
