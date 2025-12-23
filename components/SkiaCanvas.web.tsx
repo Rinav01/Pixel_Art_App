@@ -41,6 +41,8 @@ export const SkiaCanvas: React.FC<SkiaCanvasProps> = ({
 
     layers.forEach(layer => {
       if (layer.isVisible) {
+        ctx.save();
+        ctx.globalAlpha = layer.opacity ?? 1;
         layer.pixels.forEach((row, y) => {
           row.forEach((color, x) => {
             if (color) {
@@ -49,6 +51,7 @@ export const SkiaCanvas: React.FC<SkiaCanvasProps> = ({
             }
           });
         });
+        ctx.restore();
       }
     });
 

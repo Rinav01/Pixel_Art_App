@@ -1,9 +1,9 @@
-import React from 'react';
-import { Canvas, Rect, Group, Line } from '@shopify/react-native-skia';
+import React, { useMemo, useRef } from 'react';
+import { Canvas, Group, Line, Path, Skia } from '@shopify/react-native-skia';
 import type { Layer } from '../state/types';
 import { PIXEL_WIDTH, PIXEL_HEIGHT } from '../state/constants';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
-import type { GestureUpdateEvent, TapGestureHandlerEventPayload, PanGestureHandlerEventPayload, LongPressGestureHandlerEventPayload } from 'react-native-gesture-handler';
+import type { GestureUpdateEvent, TapGestureHandlerEventPayload, PanGestureHandlerEventPayload } from 'react-native-gesture-handler';
 
 interface SkiaCanvasProps {
   layers: Layer[];
@@ -30,9 +30,38 @@ export const SkiaCanvas: React.FC<SkiaCanvasProps> = ({
 }) => {
   const artboardWidth = PIXEL_WIDTH * scale;
   const artboardHeight = PIXEL_HEIGHT * scale;
+  const lastDrawnPixel = useRef<{x: number, y: number} | null>(null);
 
-  const panGesture = Gesture.Pan()
-    .maxPointers(1)
+  // Optimization: Group pixels by color into Paths.
+  // We create paths in "pixel space" (1x1) and scale the group.
+  const layerPaths = useMemo(() => {
+    return layers.map(layer => {
+      if (!layer.isVisible) return null;
+      const pathsByColor = new Map<string, ReturnType<typeof Skia.Path.Make>>();
+      
+      layer.pixels.forEach((row, y) => {
+        row.forEach((color, x) => {
+          if (!color) return;
+          if (!pathsByColor.has(color)) {
+            const p = Skia.Path.Make();
+            pathsByColor.set(color, p);
+          }
+          // Add a 1x1 rect at x,y
+          pathsByColor.get(color)!.addRect({ x, y, width: 1, height: 1 });
+        });
+      });
+      
+      return {
+        id: layer.id,
+        opacity: layer.opacity ?? 1,
+        paths: Array.from(pathsByColor.entries()).map(([color, path]) => ({ color, path }))
+      };
+    });
+  }, [layers]);
+
+  // Pan Gesture for Viewport Panning (Two fingers or specific tool)
+  const viewPanGesture = Gesture.Pan()
+    .maxPointers(1) // Single finger pan if tool is selected
     .enabled(selectedTool === 'pan')
     .onUpdate((e: GestureUpdateEvent<PanGestureHandlerEventPayload>) => {
       setPan({
@@ -41,6 +70,31 @@ export const SkiaCanvas: React.FC<SkiaCanvasProps> = ({
       });
     });
 
+  // Pan Gesture for Drawing (Drag to Draw)
+  const drawGesture = Gesture.Pan()
+    .maxPointers(1)
+    .enabled(selectedTool !== 'pan')
+    .onStart((e: GestureUpdateEvent<PanGestureHandlerEventPayload>) => {
+       const pixelX = Math.floor((e.x - pan.x) / scale);
+       const pixelY = Math.floor((e.y - pan.y) / scale);
+       lastDrawnPixel.current = { x: pixelX, y: pixelY };
+       onPixelPress(pixelX, pixelY);
+    })
+    .onUpdate((e: GestureUpdateEvent<PanGestureHandlerEventPayload>) => {
+      const pixelX = Math.floor((e.x - pan.x) / scale);
+      const pixelY = Math.floor((e.y - pan.y) / scale);
+      
+      // Debounce: Only draw if we moved to a new pixel
+      if (lastDrawnPixel.current?.x !== pixelX || lastDrawnPixel.current?.y !== pixelY) {
+         lastDrawnPixel.current = { x: pixelX, y: pixelY };
+         onPixelPress(pixelX, pixelY);
+      }
+    })
+    .onEnd(() => {
+      lastDrawnPixel.current = null;
+    });
+
+  // Tap Gesture (for single clicks)
   const tapGesture = Gesture.Tap()
     .numberOfTaps(1)
     .enabled(selectedTool !== 'pan')
@@ -50,41 +104,35 @@ export const SkiaCanvas: React.FC<SkiaCanvasProps> = ({
       onPixelPress(pixelX, pixelY);
     });
 
-    const longPressGesture = Gesture.LongPress()
-    .minDuration(50)
-    .enabled(selectedTool !== 'pan')
-    .onStart((e: GestureUpdateEvent<LongPressGestureHandlerEventPayload>) => {
-      const pixelX = Math.floor((e.x - pan.x) / scale);
-      const pixelY = Math.floor((e.y - pan.y) / scale);
-      onPixelPress(pixelX, pixelY);
-    });
-
-  const gesture = Gesture.Race(panGesture, tapGesture, longPressGesture);
+  const gesture = Gesture.Race(viewPanGesture, drawGesture, tapGesture);
 
   return (
     <GestureDetector gesture={gesture}>
       <Canvas style={{ width, height }}>
-        <Group transform={[{ translateX: pan.x }, { translateY: pan.y }]}>
-          {layers.map(layer =>
-            layer.isVisible
-              ? layer.pixels.map((row, y) =>
-                  row.map((color, x) =>
-                    color ? (
-                      <Rect
-                        key={`${layer.id}-${y}-${x}`}
-                        x={x * scale}
-                        y={y * scale}
-                        width={scale}
-                        height={scale}
-                        color={color}
-                      />
-                    ) : null
-                  )
-                )
-              : null
+        <Group transform={[{ translateX: pan.x }, { translateY: pan.y }, { scale }]}>
+          {layerPaths.map(layer => 
+            layer ? (
+              <Group key={layer.id} opacity={layer.opacity}>
+                {layer.paths.map((p, i) => (
+                  <Path key={i} path={p.path} color={p.color} />
+                ))}
+              </Group>
+            ) : null
           )}
-          {showGrid && (
-            <Group>
+          
+           {/* Grid is drawn in a separate group to handle the scale/strokeWidth correctly
+               or we can just draw it scaled. 
+               If we scale the grid, the stroke width scales too (becomes huge). 
+               So we should draw the grid in screen space or inverse scale the stroke.
+               Let's draw grid in "artboard space" but with vector-effect: non-scaling-stroke logic?
+               Skia doesn't support 'non-scaling-stroke' easily in Group transform.
+               So we separate the Grid out of the scaled Group or use 1/scale stroke width.
+           */}
+        </Group>
+        
+        {showGrid && (
+           <Group transform={[{ translateX: pan.x }, { translateY: pan.y }]}>
+              {/* Vertical Lines */}
               {Array.from({ length: PIXEL_WIDTH + 1 }).map((_, i) => (
                 <Line
                   key={`v-${i}`}
@@ -94,6 +142,7 @@ export const SkiaCanvas: React.FC<SkiaCanvasProps> = ({
                   strokeWidth={1}
                 />
               ))}
+              {/* Horizontal Lines */}
               {Array.from({ length: PIXEL_HEIGHT + 1 }).map((_, i) => (
                 <Line
                   key={`h-${i}`}
@@ -103,9 +152,8 @@ export const SkiaCanvas: React.FC<SkiaCanvasProps> = ({
                   strokeWidth={1}
                 />
               ))}
-            </Group>
-          )}
-        </Group>
+           </Group>
+        )}
       </Canvas>
     </GestureDetector>
   );

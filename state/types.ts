@@ -2,6 +2,7 @@ export interface Layer {
   id: string;
   name: string;
   isVisible: boolean;
+  opacity?: number;
   // color string (hex) or null for transparent
   pixels: (string | null)[][];
 }

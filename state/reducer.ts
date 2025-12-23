@@ -36,6 +36,7 @@ export const editorReducer = produce((draft: EditorState, action: any): EditorSt
             id: `layer${Date.now()}`,
             name: 'Layer 1',
             isVisible: true,
+          opacity: 1,
             pixels: Array(PIXEL_HEIGHT).fill(0).map(() => Array(PIXEL_WIDTH).fill(null)),
           },
         ],
@@ -53,6 +54,7 @@ export const editorReducer = produce((draft: EditorState, action: any): EditorSt
               id: `layer${Date.now()}`,
               name: 'Layer 1',
               isVisible: true,
+          opacity: 1,
               pixels: Array(PIXEL_HEIGHT).fill(0).map(() => Array(PIXEL_WIDTH).fill(null)),
             },
           ],
@@ -68,6 +70,7 @@ export const editorReducer = produce((draft: EditorState, action: any): EditorSt
           id: action.payload.layerId,
           name: action.payload.name,
           isVisible: true,
+          opacity: 1,
           pixels: Array(PIXEL_HEIGHT).fill(0).map(() => Array(PIXEL_WIDTH).fill(null)),
         };
         frame.layers.push(newLayer);
@@ -95,6 +98,16 @@ export const editorReducer = produce((draft: EditorState, action: any): EditorSt
         const layer = frame.layers.find(l => l.id === action.payload.layerId);
         if (layer) {
           layer.isVisible = !layer.isVisible;
+        }
+      }
+      return draft;
+    }
+    case 'SET_LAYER_OPACITY': {
+      const frame = draft.frames[action.payload.frameIndex];
+      if (frame) {
+        const layer = frame.layers.find(l => l.id === action.payload.layerId);
+        if (layer) {
+          layer.opacity = action.payload.opacity;
         }
       }
       return draft;

@@ -10,6 +10,7 @@ export const initialState: EditorState = {
           id: 'layer1',
           name: 'Layer 1',
           isVisible: true,
+          opacity: 1,
           pixels: Array(PIXEL_HEIGHT).fill(0).map(() => Array(PIXEL_WIDTH).fill(null)),
         },
       ],

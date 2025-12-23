@@ -1,6 +1,7 @@
 import React from 'react';
 import { ScrollView, View, Animated } from 'react-native';
 import { Text, List, IconButton, Button, useTheme } from 'react-native-paper';
+import Slider from '@react-native-community/slider';
 import type { Layer } from '../state/types';
 import { getStyles } from './PixelArtEditor.styles';
 
@@ -10,6 +11,7 @@ interface AnimatedLayerItemProps {
   onPress: (id: string) => void;
   onToggleVisibility: (id: string) => void;
   onDeleteLayer: (id: string) => void;
+  onOpacityChange: (id: string, opacity: number) => void;
   canDelete: boolean;
 }
 
@@ -19,6 +21,7 @@ const AnimatedLayerItem: React.FC<AnimatedLayerItemProps> = ({
   onPress,
   onToggleVisibility,
   onDeleteLayer,
+  onOpacityChange,
   canDelete,
 }) => {
   const theme = useTheme();
@@ -68,6 +71,24 @@ const AnimatedLayerItem: React.FC<AnimatedLayerItemProps> = ({
           </View>
         )}
       />
+      {isSelected && (
+        <View style={{ paddingHorizontal: 16, paddingBottom: 8 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Text variant="labelSmall">Opacity: {Math.round((layer.opacity ?? 1) * 100)}%</Text>
+            </View>
+            <Slider
+                style={{ width: '100%', height: 40 }}
+                minimumValue={0}
+                maximumValue={1}
+                step={0.01}
+                value={layer.opacity ?? 1}
+                onValueChange={(val) => onOpacityChange(layer.id, val)}
+                minimumTrackTintColor={theme.colors.primary}
+                maximumTrackTintColor={theme.colors.onSurfaceDisabled}
+                thumbTintColor={theme.colors.primary}
+            />
+        </View>
+      )}
     </Animated.View>
   );
 };
@@ -92,6 +113,7 @@ export const LayerManager: React.FC<LayerManagerProps> = ({ layers, currentLayer
   const handleDeleteLayer = (id: string) => dispatch({ type: 'DELETE_LAYER', payload: { frameIndex: currentFrame, layerId: id } });
   const handleToggleLayerVisibility = (id: string) => dispatch({ type: 'TOGGLE_LAYER_VISIBILITY', payload: { frameIndex: currentFrame, layerId: id } });
   const handleSetCurrentLayer = (id: string) => dispatch({ type: 'SET_CURRENT_LAYER', payload: id });
+  const handleOpacityChange = (id: string, opacity: number) => dispatch({ type: 'SET_LAYER_OPACITY', payload: { frameIndex: currentFrame, layerId: id, opacity } });
 
   return (
     <View>
@@ -106,6 +128,7 @@ export const LayerManager: React.FC<LayerManagerProps> = ({ layers, currentLayer
               onPress={handleSetCurrentLayer}
               onToggleVisibility={handleToggleLayerVisibility}
               onDeleteLayer={handleDeleteLayer}
+              onOpacityChange={handleOpacityChange}
               canDelete={layers.length > 1}
             />
           ))}
