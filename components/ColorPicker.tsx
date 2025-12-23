@@ -3,7 +3,7 @@ import { TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useTheme } from 'react-native-paper';
 import { getStyles } from './PixelArtEditor.styles';
-import { ColorPickerModal } from './ColorPickerModal';
+import { AdvancedColorPicker } from './AdvancedColorPicker';
 import type { EditorState } from '../state/types';
 
 export const ColorPicker: React.FC = () => {
@@ -18,10 +18,11 @@ export const ColorPicker: React.FC = () => {
         style={[styles.colorButton, { backgroundColor: color, alignSelf: 'center' }]}
         onPress={() => setModalVisible(true)}
       />
-      <ColorPickerModal
-        visible={modalVisible}
-        onDismiss={() => setModalVisible(false)}
-      />
+      {modalVisible && (
+        <AdvancedColorPicker
+          onDismiss={() => setModalVisible(false)}
+        />
+      )}
     </>
   );
 };

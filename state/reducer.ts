@@ -4,8 +4,6 @@ import { produce } from 'immer';
 import { floodFill } from './utils';
 import { PIXEL_HEIGHT, PIXEL_WIDTH } from './constants';
 
-export const initialState: EditorState = baseInitialState;
-
 export const editorReducer = produce((draft: EditorState, action: any): EditorState => {
   switch (action.type) {
     case 'DRAW_PIXEL': {
@@ -130,4 +128,4 @@ export const editorReducer = produce((draft: EditorState, action: any): EditorSt
     default:
       return draft;
   }
-}, initialState);
+}, baseInitialState);

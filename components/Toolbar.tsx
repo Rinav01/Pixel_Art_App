@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, Animated } from 'react-native';
+import { View, TouchableOpacity, Animated, Pressable } from 'react-native';
 import { IconButton, useTheme } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
 import { getStyles } from './PixelArtEditor.styles';
 import type { EditorState } from '../state/types';
 import { CustomTooltip } from './CustomTooltip';
-import { ColorPickerModal } from './ColorPickerModal';
+
 
 interface AnimatedIconButtonProps {
   icon: string;
@@ -47,9 +47,9 @@ const AnimatedIconButton: React.FC<AnimatedIconButtonProps> = ({ icon, onPress, 
 
   return (
     <CustomTooltip title={title}>
-      <div
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+      <Pressable
+        onHoverIn={handleMouseEnter}
+        onHoverOut={handleMouseLeave}
       >
         <Animated.View
           style={{ transform: [{ scale: combinedScale }] }}
@@ -62,7 +62,7 @@ const AnimatedIconButton: React.FC<AnimatedIconButtonProps> = ({ icon, onPress, 
             iconColor={isSelected ? theme.colors.onPrimary : theme.colors.onSurface}
           />
         </Animated.View>
-      </div>
+      </Pressable>
     </CustomTooltip>
   );
 };
@@ -93,7 +93,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onZoomIn, onZoomOut }) => {
       <AnimatedIconButton icon="magnify-minus-outline" title="Zoom Out" onPress={onZoomOut} />
       <View style={styles.divider} />
       <TouchableOpacity style={[styles.colorButton, { backgroundColor: color }]} onPress={() => setColorPickerVisible(true)} />
-      <ColorPickerModal visible={isColorPickerVisible} onDismiss={() => setColorPickerVisible(false)} />
+      
     </View>
   );
 };

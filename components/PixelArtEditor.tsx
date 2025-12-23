@@ -2,7 +2,8 @@ import React from 'react';
 import { View, useWindowDimensions } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux';
-import type { EditorState } from '../state/types';
+import { undo, redo } from '../state/undoable';
+import type { EditorState, EditorStateSnapshot } from '../state/types';
 
 import { Timeline } from './Timeline';
 import { LeftToolbar } from './LeftToolbar';
@@ -28,6 +29,8 @@ const PixelArtEditor: React.FC<PixelArtEditorProps> = ({ isDarkMode, setIsDarkMo
   const currentLayer = useSelector((s: EditorState) => s.currentLayer);
   const color = useSelector((s: EditorState) => s.color);
   const tool = useSelector((s: EditorState) => s.tool);
+  const undoStack = useSelector((s: EditorState) => s.undoStack);
+  const redoStack = useSelector((s: EditorState) => s.redoStack);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
   const [pan, setPan] = React.useState({ x: 0, y: 0 });
@@ -103,13 +106,17 @@ const PixelArtEditor: React.FC<PixelArtEditorProps> = ({ isDarkMode, setIsDarkMo
   const handleZoomIn = () => setScale(s => s + 1);
   const handleZoomOut = () => setScale(s => Math.max(1, s - 1));
 
-  // const handleUndo = () => {
-  //   // Implement undo logic
-  // };
+  const handleUndo = () => {
+    if (undoStack.length > 0) {
+      dispatch(undo());
+    }
+  };
 
-  // const handleRedo = () => {
-  //   // Implement redo logic
-  // };
+  const handleRedo = () => {
+    if (redoStack.length > 0) {
+      dispatch(redo());
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -117,8 +124,8 @@ const PixelArtEditor: React.FC<PixelArtEditorProps> = ({ isDarkMode, setIsDarkMo
         <Appbar.Content title="Pixel Art Editor" />
         <AnimatedAppbarAction icon={isDarkMode ? 'white-balance-sunny' : 'moon-waning-crescent'} onPress={setIsDarkMode} />
         <AnimatedAppbarAction icon="grid" onPress={() => setShowGrid(s => !s)} color={showGrid ? theme.colors.primary : undefined} />
-        {/* <AnimatedAppbarAction icon="undo" onPress={handleUndo} /> */}
-        {/* <AnimatedAppbarAction icon="redo" onPress={handleRedo} /> */}
+        {/* <AnimatedAppbarAction icon="undo" onPress={handleUndo} color={undoStack.length === 0 ? theme.colors.onSurfaceDisabled : undefined} />
+        <AnimatedAppbarAction icon="redo" onPress={handleRedo} color={redoStack.length === 0 ? theme.colors.onSurfaceDisabled : undefined} /> */}
         <AnimatedAppbarAction icon="download" onPress={() => { /* Implement download */ }} />
       </Appbar.Header>
 

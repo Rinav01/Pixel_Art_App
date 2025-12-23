@@ -105,70 +105,126 @@ export const AdvancedColorPicker = ({ onDismiss }: { onDismiss?: () => void }) =
   };
 
   return (
-    <>
-      <View style={styles.backdrop} onTouchEnd={onDismiss} />
-      <View style={styles.container}>
-        <View style={styles.content}>
-          <Text style={styles.title}>Color Picker</Text>
-          <ColorPlane hue={hue} saturation={saturation} value={value} onColorSelect={handleColorSelect} styles={styles} />
-          <Slider
-            style={styles.slider}
-            minimumValue={0}
-            maximumValue={360}
-            value={hue}
-            onValueChange={handleHueChange}
-          />
-          <View style={[styles.preview, { backgroundColor: selectedColor }]} />
-          <Button mode="contained" onPress={handleAddToPalette} style={{ marginTop: 16 }}>
-            Add to Palette
-          </Button>
-          <Button mode="outlined" onPress={onDismiss} style={{ marginTop: 8 }}>
-            Cancel
-          </Button>
-        </View>
-      </View>
-    </>
-  );
-};
 
-const getStyles = (theme: any) => StyleSheet.create({
-  container: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: [{ translateX: '-50%' }, { translateY: '-50%' }],
-    zIndex: 1000,
-    elevation: 10,
-  },
-  backdrop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    zIndex: 999,
-  },
-  content: {
-    backgroundColor: theme.colors.surface,
-    alignItems: 'center',
-    paddingVertical: 24,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    shadowColor: theme.colors.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 8,
-    borderWidth: 1,
-    borderColor: theme.colors.outline,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 16,
-    color: theme.colors.onSurface,
-  },
+      <View style={styles.container}>
+
+        <View style={styles.backdrop} onTouchEnd={onDismiss} />
+
+        <View style={{
+
+          backgroundColor: theme.colors.surface,
+
+          alignItems: 'center',
+
+          paddingVertical: 24,
+
+          paddingHorizontal: 20,
+
+          borderRadius: 12,
+
+          shadowColor: theme.colors.shadow,
+
+          shadowOffset: { width: 0, height: 4 },
+
+          shadowOpacity: 0.2,
+
+          shadowRadius: 12,
+
+          elevation: 8,
+
+          borderWidth: 1,
+
+          borderColor: theme.colors.outline,
+
+        }}>
+
+              <Text style={styles.title}>Color Picker</Text>
+
+              <ColorPlane hue={hue} saturation={saturation} value={value} onColorSelect={handleColorSelect} styles={styles} />
+
+              <Slider
+
+                style={styles.slider}
+
+                minimumValue={0}
+
+                maximumValue={360}
+
+                value={hue}
+
+                onValueChange={handleHueChange}
+
+              />
+
+              <View style={[styles.preview, { backgroundColor: selectedColor }]} />
+
+              <View style={{ flexDirection: 'row', justifyContent: 'space-around', width: '100%', marginTop: 16 }}>
+
+                <Button mode="outlined" onPress={onDismiss}>
+
+                  Cancel
+
+                </Button>
+
+                <Button mode="contained" onPress={handleAddToPalette}>
+
+                  Add to Palette
+
+                </Button>
+
+              </View>
+
+        </View>
+
+      </View>
+
+    );
+
+  };
+
+  
+
+  const getStyles = (theme: any) => StyleSheet.create({
+
+    container: {
+
+      position: 'absolute',
+
+      top: 0,
+
+      left: 0,
+
+      right: 0,
+
+      bottom: 0,
+
+      zIndex: 100,
+
+      alignItems: 'center',
+
+      justifyContent: 'center',
+
+    },
+
+    backdrop: {
+
+      ...StyleSheet.absoluteFillObject,
+
+      backgroundColor: 'rgba(0,0,0,0.5)',
+
+    },
+
+    title: {
+
+      fontSize: 18,
+
+      fontWeight: '600',
+
+      marginBottom: 16,
+
+      color: theme.colors.onSurface,
+
+    },
   planeContainer: {
     width: 220,
     height: 220,
